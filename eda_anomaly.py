@@ -22,8 +22,10 @@ def load_flows() -> pd.DataFrame:
 
 
 def engineer(df: pd.DataFrame) -> pd.DataFrame:
+    # cheap ratios that usually separate bulk transfers from chatty scans
     out = df.copy()
     out["bytes_per_packet"] = out["bytes"] / out["packets"].clip(lower=1)
+    # clip duration so we don't blow up on 0ms rows from broken exporters
     out["packets_per_sec"] = out["packets"] / (out["duration_ms"] / 1000).clip(lower=0.001)
     return out
 
@@ -44,9 +46,11 @@ def score_anomalies(df: pd.DataFrame) -> pd.DataFrame:
     X = df[features].copy()
     X["protocol_enc"] = LabelEncoder().fit_transform(df["protocol"])
 
+    # contamination=0.1 is just a demo default; on real traffic I'd threshold on score instead
     model = IsolationForest(n_estimators=200, contamination=0.1, random_state=42)
     df = df.copy()
     df["anomaly_raw"] = model.fit_predict(X)
+    # sklearn returns higher = more normal, flip so "big number = weird"
     df["anomaly_score"] = -model.score_samples(X)
     df["is_outlier"] = df["anomaly_raw"] == -1
     return df

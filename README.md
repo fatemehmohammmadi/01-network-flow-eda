@@ -1,43 +1,66 @@
-# 01 — Network Flow EDA & Anomaly Scoring
+# Network Flow EDA & Anomaly Scoring
 
-Exploratory analysis on NetFlow-like traffic and unsupervised anomaly scoring with Isolation Forest.
+Small project for poking at NetFlow-style records and finding weird flows with Isolation Forest.
 
-## Learning goals
+I mostly use this as a starting point when I get a new CSV dump from a lab or a SIEM export. Nothing fancy — just enough EDA to know what the traffic looks like before jumping into supervised models.
 
-- Work with tabular network flow data
-- Engineer simple statistical features
-- Detect outliers without labels
-- Produce SOC-friendly summary artifacts
+## What's in here
 
-## Layout
+| Path | What it does |
+|------|----------------|
+| `generate_sample_data.py` | Builds a synthetic flow table (benign + planted outliers) |
+| `eda_anomaly.py` | Prints basic stats, scores anomalies, writes plots/CSVs |
+| `data/sample_flows.csv` | Sample dataset already generated |
+| `outputs/` | Results from the last local run |
 
-```
-01-network-flow-eda/
-├── README.md
-├── requirements.txt
-├── generate_sample_data.py
-├── eda_anomaly.py
-├── data/sample_flows.csv
-└── outputs/                 # sample run artifacts
-    ├── top_anomalies.csv
-    └── eda_plots.png
-```
-
-## Setup & run
+## Quick start
 
 ```bash
-cd 01-network-flow-eda
+python -m venv .venv
+# Windows
+.venv\Scripts\activate
+# macOS / Linux
+source .venv/bin/activate
+
 pip install -r requirements.txt
-python generate_sample_data.py
+python generate_sample_data.py   # optional if data/ already exists
 python eda_anomaly.py
 ```
 
-## Sample run (committed)
+## How the scoring works
 
-| Artifact | Description |
-|----------|-------------|
-| `outputs/top_anomalies.csv` | Top-20 flows by anomaly score |
-| `outputs/eda_plots.png` | Bytes histogram + score boxplot |
-| `outputs/run_summary.json` | Shape, outlier count, label overlap |
+1. Load flows and add a couple derived columns (`bytes_per_packet`, `packets_per_sec`).
+2. Encode protocol and feed numeric features into `IsolationForest`.
+3. Rank by anomaly score and dump the top rows + a simple plot.
 
-Expected console highlights: ~1000 flows, ~10% flagged as outliers, strong overlap with synthetic `anomaly` labels.
+Contamination is fixed at `0.1` so you get a stable demo. On real data you'll want to tune that (or switch to a score threshold from a quiet baseline week).
+
+## Sample results
+
+From the committed run:
+
+- ~1000 flows
+- ~10% flagged
+- Most planted `anomaly` rows show up in the outlier set (see `outputs/run_summary.json`)
+
+Files worth opening:
+
+- `outputs/top_anomalies.csv`
+- `outputs/eda_plots.png`
+- `outputs/run_summary.json`
+
+## Notes / limits
+
+- Data is synthetic on purpose. Don't treat the F1-looking overlap as production proof.
+- No time-window features yet (rolling rates per `src_ip` help a lot in practice).
+- Plots need a normal desktop backend; headless servers may need `Agg`.
+
+## Ideas if you fork this
+
+- Swap the CSV for anonymized NetFlow / Zeek `conn.log` aggregates
+- Add per-host rolling stats
+- Push top-N outliers into a webhook / Slack alert
+
+## License
+
+MIT
