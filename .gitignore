@@ -1,0 +1,75 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Large model weights (keep lightweight sample outputs)
+*.pt
+*.pth
+*.bin
+*.onnx
+*.safetensors
+*.joblib
+models/
+checkpoints/
+runs/
+wandb/
+**/outputs/model/
+**/outputs/runs/
+
+# Allow committed sample run artifacts
+!**/outputs/
+!**/outputs/**
+
+# Still ignore heavy serialized models inside outputs
+*.joblib
+**/outputs/model/
+**/outputs/runs/
+
+# Packet captures
+*.pcap
+*.pcapng
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Env / secrets
+.env
+.env.*
+*.pem
+*.key
+credentials.json
+
+# Reports / coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/

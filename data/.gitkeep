@@ -1,0 +1,2 @@
+# Keep sample datasets in git for demos; ignore regenerated large dumps if any.
+!.gitkeep

@@ -1,0 +1,16 @@
+{
+  "n_flows": 1000,
+  "n_outliers": 100,
+  "outlier_rate": 0.1,
+  "mean_anomaly_score": 0.4287,
+  "label_vs_outlier": {
+    "anomaly": {
+      "False": 7,
+      "True": 93
+    },
+    "benign": {
+      "False": 893,
+      "True": 7
+    }
+  }
+}
